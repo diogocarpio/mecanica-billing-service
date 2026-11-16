@@ -1,0 +1,75 @@
+spring:
+  application:
+    name: mecanica-billing-service
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/billing?replicaSet=rs0}
+      auto-index-creation: true
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    publisher-confirm-type: correlated
+    listener:
+      simple:
+        default-requeue-rejected: false
+        prefetch: 10
+        retry:
+          enabled: true
+          initial-interval: 1s
+          max-attempts: 4
+          max-interval: 10s
+          multiplier: 2
+
+billing:
+  messaging:
+    exchange: ${RABBITMQ_EXCHANGE:mecanica.events}
+    dead-letter-exchange: ${RABBITMQ_DLX:mecanica.events.dlx}
+    queues:
+      quote-requested: ${QUOTE_REQUESTED_QUEUE:billing.os.quote-requested.v1}
+      os-cancelled: ${OS_CANCELLED_QUEUE:billing.os.cancelled.v1}
+    routing-keys:
+      quote-requested: os.quote.requested.v1
+      os-cancelled: os.cancelled.v1
+    outbox:
+      poll-interval-ms: ${OUTBOX_POLL_INTERVAL_MS:1000}
+      max-attempts: ${OUTBOX_MAX_ATTEMPTS:10}
+      confirm-timeout-seconds: ${OUTBOX_CONFIRM_TIMEOUT_SECONDS:5}
+  mercado-pago:
+    base-url: ${MERCADO_PAGO_BASE_URL:https://api.mercadopago.com}
+    sandbox: ${MERCADO_PAGO_SANDBOX:true}
+    access-token: ${MERCADO_PAGO_ACCESS_TOKEN:}
+    webhook-secret: ${MERCADO_PAGO_WEBHOOK_SECRET:}
+    webhook-tolerance-seconds: ${MERCADO_PAGO_WEBHOOK_TOLERANCE_SECONDS:300}
+    notification-url: ${MERCADO_PAGO_NOTIFICATION_URL:}
+    back-urls:
+      success: ${MERCADO_PAGO_SUCCESS_URL:}
+      failure: ${MERCADO_PAGO_FAILURE_URL:}
+      pending: ${MERCADO_PAGO_PENDING_URL:}
+    reconciliation-age: ${MERCADO_PAGO_RECONCILIATION_AGE:PT5M}
+    reconciliation-interval-ms: ${MERCADO_PAGO_RECONCILIATION_INTERVAL_MS:60000}
+    reconciliation-enabled: ${MERCADO_PAGO_RECONCILIATION_ENABLED:false}
+
+server:
+  port: ${SERVER_PORT:8080}
+
+logging:
+  pattern:
+    level: "%5p [corr=%X{correlationId:-} evt=%X{eventId:-}]"
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

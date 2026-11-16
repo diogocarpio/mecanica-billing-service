@@ -1,0 +1,19 @@
+{
+  "eventId": "5f4a9741-7b32-4aa0-8f70-e672dd52a236",
+  "eventType": "billing.payment.approved.v1",
+  "eventVersion": 1,
+  "occurredAt": "2026-11-15T12:05:00Z",
+  "source": "billing-service",
+  "correlationId": "OS-001",
+  "osId": "OS-001",
+  "payload": {
+    "paymentId": "e71fe09d-e7c4-46c9-b09b-5d155d88edfa",
+    "quoteId": "6918d93c86e2b273efac92fb",
+    "amount": 165.50,
+    "currency": "BRL",
+    "status": "APPROVED",
+    "externalPaymentId": "123456789",
+    "providerStatus": "approved",
+    "changedAt": "2026-11-15T12:05:00Z"
+  }
+}

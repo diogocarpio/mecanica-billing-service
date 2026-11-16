@@ -1,0 +1,16 @@
+{
+  "eventId": "22ad60e7-6f5e-4d04-bf65-931a6da810a7",
+  "eventType": "billing.quote.rejected.v1",
+  "eventVersion": 1,
+  "occurredAt": "2026-11-15T21:00:00Z",
+  "source": "billing-service",
+  "correlationId": "OS-2026-0001",
+  "causationId": "28de650f-7483-423b-b5d7-d7060c138771",
+  "osId": "OS-2026-0001",
+  "payload": {
+    "quoteId": "QUOTE-2026-0001",
+    "status": "REJECTED",
+    "reason": "Cliente não aprovou o valor",
+    "decidedAt": "2026-11-15T21:00:00Z"
+  }
+}
