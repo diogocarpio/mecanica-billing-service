@@ -21,6 +21,8 @@ Fontes oficiais do repositório:
   reconciliação e segurança.
 - [CI/CD](CI-CD.md) — pipelines, governança e pendências do pipeline.
 - [BDD](bdd/BILLING-BDD.md) — cenários Cucumber executáveis do Billing.
+- [Reprocessamento de DLQ](DLQ-REPROCESSAMENTO.md) — runbook operacional de
+  inspeção e reprocessamento seguro.
 
 ## Funcionalidades implementadas
 
@@ -80,12 +82,15 @@ curl http://localhost:8080/actuator/health
 | Imagem Docker local | `mecanica/billing-service:local` construída; container respondeu health UP com liveness/readiness | Verificado localmente |
 | Cobertura JaCoCo local | `target/site/jacoco/index.html` e `target/surefire-reports` (~89,6% de linhas, gate >=80% aprovado) | Verificado localmente |
 | Contrato e exemplos de eventos | `docs/contracts/asyncapi.yaml` e `docs/contracts/examples` | Verificado |
+| Contratos HTTP e de eventos | `HttpContractTest` (MockMvc standalone: criação/erros `ApiError`, webhook 401, `X-Correlation-Id`) e `EventContractTest` (envelope JSON dos exemplos) | Verificado localmente |
 | BDD do Billing | Cenário Cucumber local aprovado (documentado em `docs/bdd/BILLING-BDD.md`) | Verificado localmente |
+| BDD de falha/compensação | `billing-saga-failure.feature`: `QUOTE_FAILED`/`INVALID_QUOTE_DATA` e cancelamento com `QUOTE_CANCELLED` (mocks locais) | Verificado localmente |
+| Reprocessamento de DLQ | [docs/DLQ-REPROCESSAMENTO.md](DLQ-REPROCESSAMENTO.md): runbook de DLQ RabbitMQ e Outbox `FAILED` | Documentado |
 | Quality gate Sonar | Workflow preparado, mas análise não executada (`SONAR_ENABLED`/variáveis não provisionadas) | Pendente |
-| Scans de dependências, secrets e imagem | Jobs não implementados | Pendente |
+| Scans de dependências, secrets e imagem | Trivy (`aquasec/trivy:0.58.2`) não bloqueante adicionado ao job `image` do CI; relatórios como artefato `security-scans`; primeira execução remota pendente do próximo push | Pendente execução remota |
 | Publicação GHCR e deploy Kubernetes | Jobs criados, opt-in; nunca executados; secrets/ambiente staging não provisionados | Pendente |
 | Sandbox real Mercado Pago | Implementação e testes com provedor controlado aprovados; teste com credenciais reais de sandbox pendente (depende da aplicação Mercado Pago da equipe) | Pendente |
-| BDD cross-service e falha/compensação | Apenas cenário local do Billing existe | Pendente |
+| BDD cross-service | Apenas cenários locais do Billing existem (incluindo falha/compensação) | Pendente |
 | Observabilidade integrada | correlationId, MDC e métricas implementados; integração com ferramentas da Fase 3, dashboard e alertas pendentes | Parcial |
 | Validação de manifests em cluster | kubeconform validou sintaxe; deploy real não validado | Pendente |
 
@@ -114,9 +119,10 @@ curl http://localhost:8080/actuator/health
 - **Container/Kubernetes/CI-CD:** Dockerfile multi-stage não root, manifests
   em `k8s/` validados por kubeconform no CI, branch `main` protegida e
   workflow Billing CI aprovado.
-- **Pendências:** sandbox real do Mercado Pago, BDD cross-service e de
-  falha/compensação, quality gate Sonar e scans, publicação GHCR/deploy
-  Kubernetes, dashboard/alertas/tracing e validação dos manifests em cluster.
+- **Pendências:** sandbox real do Mercado Pago, BDD cross-service, quality
+  gate Sonar, primeira execução remota dos scans Trivy, publicação
+  GHCR/deploy Kubernetes, dashboard/alertas/tracing e validação dos
+  manifests em cluster.
 
 ## Roteiro mínimo de demonstração do Billing
 

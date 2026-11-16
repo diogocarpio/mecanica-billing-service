@@ -8,6 +8,15 @@ O cenário executável está em
 - o webhook autenticado é confirmado consultando o provedor;
 - o pagamento termina como `APPROVED`.
 
+O cenário de falha/compensação local está em
+`src/test/resources/features/billing-saga-failure.feature`. Ele comprova que:
+
+- uma solicitação de orçamento inválida (`items` vazio) processada pelo
+  `QuoteSagaHandler` publica `billing.quote.failed.v1` com código
+  `INVALID_QUOTE_DATA` via Outbox;
+- o cancelamento da OS (`os.cancelled.v1`) compensa o orçamento pendente,
+  que termina como `CANCELLED` e publica `billing.quote.cancelled.v1`.
+
 Os limites do OS Service e do Mercado Pago são simulados no teste do
 repositório Billing. Para o BDD final do grupo, o mesmo cenário deve:
 
@@ -19,4 +28,6 @@ repositório Billing. Para o BDD final do grupo, o mesmo cenário deve:
 6. verificar o estado final da OS sem acessar bancos de outros serviços.
 
 O cenário cross-service permanece uma atividade conjunta porque depende dos
-repositórios, contratos implantados e ambiente dos demais alunos.
+repositórios, contratos implantados e ambiente dos demais alunos. O BDD de
+falha/compensação acima é local (mocks de repositório, Inbox e Outbox); a
+versão ponta a ponta com broker real e os demais serviços continua pendente.
