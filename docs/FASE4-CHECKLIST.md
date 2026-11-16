@@ -328,12 +328,14 @@ somente a documentação.
 
 - [x] Cobrir domínio e casos de uso com testes unitários.
 - [x] Testar MongoDB e RabbitMQ com integração real isolada via Testcontainers.
-- [ ] Testar contratos HTTP e de eventos.
+- [x] Testar contratos HTTP e de eventos (MockMvc standalone:
+      `HttpContractTest`; exemplos JSON: `EventContractTest`).
 - [x] Testar adapter Mercado Pago sem chamar produção.
 - [x] Implementar cenário BDD executável do Billing (Cucumber) — ver
       `docs/bdd/BILLING-BDD.md`.
 - [ ] Participar de pelo menos um fluxo BDD completo entre microsserviços.
-- [ ] Incluir ao menos um BDD de falha/compensação para a demonstração.
+- [x] Incluir ao menos um BDD de falha/compensação para a demonstração
+      (cenário local executável: `billing-saga-failure.feature`).
 - [x] Configurar JaCoCo com gate mínimo de 80% por serviço.
 - [x] Configurar scanner Sonar (`sonar-project.properties` + plugin Maven).
 - [ ] Executar análise Sonar e quality gate no CI.
@@ -351,7 +353,8 @@ e o BDD prova a integração do Billing no fluxo completo.
 - [x] Propagar `correlationId` em HTTP, RabbitMQ e chamadas ao Mercado Pago.
 - [x] Criar métricas para eventos, publicações, falhas e consumo.
 - [ ] Criar dashboard e alertas mínimos.
-- [ ] Documentar consulta e reprocessamento seguro da DLQ.
+- [x] Documentar consulta e reprocessamento seguro da DLQ
+      ([docs/DLQ-REPROCESSAMENTO.md](DLQ-REPROCESSAMENTO.md)).
 
 Critério de aceite: uma OS pode ser rastreada de ponta a ponta pelo mesmo
 identificador e falhas relevantes aparecem no monitoramento.
@@ -377,7 +380,9 @@ se conecta às dependências sem credenciais embutidas.
 
 - [ ] Criar workflow de PR com compilação, testes, cobertura e qualidade.
 - [ ] Criar workflow de branch principal com imagem versionada e push no registry.
-- [ ] Adicionar scan de dependências, secrets e imagem.
+- [x] Adicionar scan de dependências, secrets e imagem
+      (Trivy não bloqueante no job `image` do CI; evidência remota pendente
+      do próximo push).
 - [ ] Criar deploy automatizado no Kubernetes.
 - [ ] Separar credenciais por ambiente com secrets do provedor de CI.
 - [ ] Exigir aprovação para produção, se houver produção no escopo.

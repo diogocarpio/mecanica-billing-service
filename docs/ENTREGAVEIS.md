@@ -129,11 +129,13 @@ verificada no Mercado Pago avança a OS.
 - [x] Manter cobertura acima de 80% (89,61% de linhas).
 - [x] Testar Inbox, Outbox, publisher confirms, retry e listeners.
 - [x] Adicionar testes de integração com MongoDB e RabbitMQ (Testcontainers).
-- [ ] Testar contratos HTTP e de eventos.
+- [x] Testar contratos HTTP e de eventos (MockMvc standalone +
+      `HttpContractTest` e `EventContractTest` sobre os exemplos JSON).
 - [x] Testar o adapter Mercado Pago sem produção.
 - [x] Implementar cenário BDD executável do Billing (Cucumber).
 - [ ] Implementar cenário BDD ponta a ponta com os demais serviços.
-- [ ] Implementar cenário BDD de falha/compensação.
+- [x] Implementar cenário BDD de falha/compensação (local, Cucumber:
+      `billing-saga-failure.feature`).
 - [x] Configurar scanner Sonar (`sonar-project.properties` + plugin Maven).
 - [ ] Publicar evidências de cobertura e quality gate no CI.
 
@@ -152,7 +154,8 @@ reprovado, e o BDD comprova o fluxo distribuído.
 - [x] Medir eventos enfileirados, publicações na Outbox, falhas definitivas e
       consumo por tipo de evento.
 - [ ] Criar dashboard e alertas mínimos.
-- [ ] Documentar reprocessamento seguro da DLQ.
+- [x] Documentar reprocessamento seguro da DLQ
+      ([docs/DLQ-REPROCESSAMENTO.md](DLQ-REPROCESSAMENTO.md)).
 
 **Aceite:** uma OS é localizada de ponta a ponta por um mesmo identificador e
 uma falha aparece no monitoramento.
@@ -188,7 +191,10 @@ Sonar, publicação e deploy continuam pendentes conforme
 - [ ] Criar CI de PR com build, testes, cobertura e qualidade
       (build validado por push; quality gate do Sonar depende de variáveis do
       repositório ainda não provisionadas).
-- [ ] Adicionar scans de dependências, secrets e imagem.
+- [x] Adicionar scans de dependências, secrets e imagem
+      (Trivy não bloqueante no job `image` do CI; evidência pendente da
+      próxima execução remota; quality gate formal ainda depende de
+      decisão).
 - [ ] Publicar imagem versionada em registry
       (job criado; depende de execução do release no GitHub).
 - [ ] Automatizar deploy no Kubernetes

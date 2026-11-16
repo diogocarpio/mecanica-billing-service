@@ -212,6 +212,7 @@ menos uma vez com efeitos idempotentes.
 - [Contrato AsyncAPI](docs/contracts/asyncapi.yaml)
 - [Exemplos de eventos](docs/contracts/examples)
 - [Integração Mercado Pago](docs/integrations/MERCADO-PAGO.md)
+- [Reprocessamento seguro de DLQ e Outbox](docs/DLQ-REPROCESSAMENTO.md)
 
 O link de pagamento é criado somente após a aprovação do orçamento, antes da
 execução do serviço.

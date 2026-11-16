@@ -19,7 +19,14 @@ Dispara em push para qualquer branch, em pull requests e manualmente
 - **Kubernetes manifests** (`manifests`): valida os arquivos de `k8s/` com
   kubeconform em modo estrito.
 - **Container build** (`image`): constrói a imagem Docker com Buildx para
-  conferir o Dockerfile. Não publica em registry.
+  conferir o Dockerfile. Não publica em registry. Inclui scans Trivy
+  **não bloqueantes** (`--exit-code 0`) de vulnerabilidades e secrets com
+  severidade `CRITICAL,HIGH`: um scan do filesystem (`fs`) antes do build e
+  um scan da imagem `billing-ci:check` (`image`) depois do build. Os
+  relatórios `trivy-fs.txt` e `trivy-image.txt` são publicados como
+  artefato `security-scans`. Esses scans são evidências, não gates: o
+  quality gate formal de segurança continua pendente de decisão (Sonar e/ou
+  política de severidade acordada pelo grupo).
 - **Sonar quality gate** (`sonar`): opcional, só executa quando a variável de
   repositório `SONAR_ENABLED` é `true` e o evento não é um pull request de
   fork. Compila o código, baixa o artefato `test-evidence` e roda
@@ -116,6 +123,10 @@ kubectl -n mecanica rollout undo deployment/billing-service
 - Pendente: análise Sonar e quality gate, configuração das variáveis e
   secrets acima, publicação no GHCR, provisionamento do ambiente `staging`
   e deploy real validado.
-- Scans de dependências, secrets e imagem ainda **não** foram implementados.
+- Scans Trivy de filesystem e imagem adicionados ao job `image` do CI
+  (não bloqueantes, `exit-code 0`, imagem `aquasec/trivy:0.58.2` fixada);
+  relatórios publicados como artefato `security-scans`. A primeira execução
+  remota desses scans fica pendente do próximo push/CI. Um quality gate
+  formal de segurança continua pendente de decisão do grupo.
 - A Etapa 10 (CI/CD e proteção de branch) não está concluída enquanto esses
   itens externos não forem verificados.
