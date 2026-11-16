@@ -1,0 +1,703 @@
+asyncapi: 3.1.0
+info:
+  title: Mecanica Billing Service Events
+  version: 1.1.0
+  description: |
+    Contratos assíncronos dos trechos de orçamento e pagamento da Saga.
+    O arquivo descreve somente eventos consumidos ou publicados pelo Billing.
+defaultContentType: application/json
+
+servers:
+  local:
+    host: localhost:5672
+    protocol: amqp
+    description: RabbitMQ local
+
+channels:
+  quoteRequested:
+    address: os.quote.requested.v1
+    description: Solicitação de orçamento produzida pelo OS Service.
+    messages:
+      quoteRequested:
+        $ref: '#/components/messages/QuoteRequested'
+    x-rabbitmq-exchange: mecanica.events
+    x-rabbitmq-queue: billing.os.quote-requested.v1
+  osCancelled:
+    address: os.cancelled.v1
+    description: Cancelamento da ordem de serviço.
+    messages:
+      osCancelled:
+        $ref: '#/components/messages/OsCancelled'
+    x-rabbitmq-exchange: mecanica.events
+    x-rabbitmq-queue: billing.os.cancelled.v1
+  quoteCreated:
+    address: billing.quote.created.v1
+    messages:
+      quoteCreated:
+        $ref: '#/components/messages/QuoteCreated'
+    x-rabbitmq-exchange: mecanica.events
+  quoteSubmitted:
+    address: billing.quote.submitted.v1
+    messages:
+      quoteSubmitted:
+        $ref: '#/components/messages/QuoteSubmitted'
+    x-rabbitmq-exchange: mecanica.events
+  quoteApproved:
+    address: billing.quote.approved.v1
+    messages:
+      quoteApproved:
+        $ref: '#/components/messages/QuoteApproved'
+    x-rabbitmq-exchange: mecanica.events
+  quoteRejected:
+    address: billing.quote.rejected.v1
+    messages:
+      quoteRejected:
+        $ref: '#/components/messages/QuoteRejected'
+    x-rabbitmq-exchange: mecanica.events
+  quoteCancelled:
+    address: billing.quote.cancelled.v1
+    messages:
+      quoteCancelled:
+        $ref: '#/components/messages/QuoteCancelled'
+    x-rabbitmq-exchange: mecanica.events
+  quoteFailed:
+    address: billing.quote.failed.v1
+    messages:
+      quoteFailed:
+        $ref: '#/components/messages/QuoteFailed'
+    x-rabbitmq-exchange: mecanica.events
+  paymentPending:
+    address: billing.payment.pending.v1
+    messages:
+      paymentPending:
+        $ref: '#/components/messages/PaymentPending'
+    x-rabbitmq-exchange: mecanica.events
+  paymentApproved:
+    address: billing.payment.approved.v1
+    messages:
+      paymentApproved:
+        $ref: '#/components/messages/PaymentApproved'
+    x-rabbitmq-exchange: mecanica.events
+  paymentRejected:
+    address: billing.payment.rejected.v1
+    messages:
+      paymentRejected:
+        $ref: '#/components/messages/PaymentRejected'
+    x-rabbitmq-exchange: mecanica.events
+  paymentFailed:
+    address: billing.payment.failed.v1
+    messages:
+      paymentFailed:
+        $ref: '#/components/messages/PaymentFailed'
+    x-rabbitmq-exchange: mecanica.events
+
+operations:
+  consumeQuoteRequested:
+    action: receive
+    summary: Criar e enviar um orçamento solicitado pelo OS Service.
+    channel:
+      $ref: '#/channels/quoteRequested'
+    messages:
+      - $ref: '#/channels/quoteRequested/messages/quoteRequested'
+  consumeOsCancelled:
+    action: receive
+    summary: Compensar o orçamento após cancelamento da OS.
+    channel:
+      $ref: '#/channels/osCancelled'
+    messages:
+      - $ref: '#/channels/osCancelled/messages/osCancelled'
+  publishQuoteCreated:
+    action: send
+    channel:
+      $ref: '#/channels/quoteCreated'
+    messages:
+      - $ref: '#/channels/quoteCreated/messages/quoteCreated'
+  publishQuoteSubmitted:
+    action: send
+    channel:
+      $ref: '#/channels/quoteSubmitted'
+    messages:
+      - $ref: '#/channels/quoteSubmitted/messages/quoteSubmitted'
+  publishQuoteApproved:
+    action: send
+    channel:
+      $ref: '#/channels/quoteApproved'
+    messages:
+      - $ref: '#/channels/quoteApproved/messages/quoteApproved'
+  publishQuoteRejected:
+    action: send
+    channel:
+      $ref: '#/channels/quoteRejected'
+    messages:
+      - $ref: '#/channels/quoteRejected/messages/quoteRejected'
+  publishQuoteCancelled:
+    action: send
+    channel:
+      $ref: '#/channels/quoteCancelled'
+    messages:
+      - $ref: '#/channels/quoteCancelled/messages/quoteCancelled'
+  publishQuoteFailed:
+    action: send
+    channel:
+      $ref: '#/channels/quoteFailed'
+    messages:
+      - $ref: '#/channels/quoteFailed/messages/quoteFailed'
+  publishPaymentPending:
+    action: send
+    channel:
+      $ref: '#/channels/paymentPending'
+    messages:
+      - $ref: '#/channels/paymentPending/messages/paymentPending'
+  publishPaymentApproved:
+    action: send
+    channel:
+      $ref: '#/channels/paymentApproved'
+    messages:
+      - $ref: '#/channels/paymentApproved/messages/paymentApproved'
+  publishPaymentRejected:
+    action: send
+    channel:
+      $ref: '#/channels/paymentRejected'
+    messages:
+      - $ref: '#/channels/paymentRejected/messages/paymentRejected'
+  publishPaymentFailed:
+    action: send
+    channel:
+      $ref: '#/channels/paymentFailed'
+    messages:
+      - $ref: '#/channels/paymentFailed/messages/paymentFailed'
+
+components:
+  messages:
+    QuoteRequested:
+      name: os.quote.requested.v1
+      title: Quote requested
+      payload:
+        $ref: '#/components/schemas/QuoteRequestedEvent'
+    OsCancelled:
+      name: os.cancelled.v1
+      title: Work order cancelled
+      payload:
+        $ref: '#/components/schemas/OsCancelledEvent'
+    QuoteCreated:
+      name: billing.quote.created.v1
+      title: Quote created
+      payload:
+        $ref: '#/components/schemas/QuoteCreatedEvent'
+    QuoteSubmitted:
+      name: billing.quote.submitted.v1
+      title: Quote submitted for approval
+      payload:
+        $ref: '#/components/schemas/QuoteSubmittedEvent'
+    QuoteApproved:
+      name: billing.quote.approved.v1
+      title: Quote approved
+      payload:
+        $ref: '#/components/schemas/QuoteApprovedEvent'
+    QuoteRejected:
+      name: billing.quote.rejected.v1
+      title: Quote rejected
+      payload:
+        $ref: '#/components/schemas/QuoteRejectedEvent'
+    QuoteCancelled:
+      name: billing.quote.cancelled.v1
+      title: Quote cancelled
+      payload:
+        $ref: '#/components/schemas/QuoteCancelledEvent'
+    QuoteFailed:
+      name: billing.quote.failed.v1
+      title: Quote processing failed
+      payload:
+        $ref: '#/components/schemas/QuoteFailedEvent'
+    PaymentPending:
+      name: billing.payment.pending.v1
+      title: Payment checkout pending
+      payload:
+        $ref: '#/components/schemas/PaymentPendingEvent'
+    PaymentApproved:
+      name: billing.payment.approved.v1
+      title: Payment approved
+      payload:
+        $ref: '#/components/schemas/PaymentApprovedEvent'
+    PaymentRejected:
+      name: billing.payment.rejected.v1
+      title: Payment rejected or cancelled
+      payload:
+        $ref: '#/components/schemas/PaymentRejectedEvent'
+    PaymentFailed:
+      name: billing.payment.failed.v1
+      title: Payment processing failed
+      payload:
+        $ref: '#/components/schemas/PaymentFailedEvent'
+
+  schemas:
+    EventMetadata:
+      type: object
+      required:
+        - eventId
+        - eventType
+        - eventVersion
+        - occurredAt
+        - source
+        - correlationId
+        - osId
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+        eventVersion:
+          type: integer
+          const: 1
+        occurredAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+        correlationId:
+          type: string
+          minLength: 1
+        causationId:
+          type: string
+          format: uuid
+        osId:
+          type: string
+          minLength: 1
+
+    QuoteItem:
+      type: object
+      required:
+        - description
+        - type
+        - quantity
+        - unitPrice
+      properties:
+        description:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          enum:
+            - PART
+            - LABOR
+            - OTHER
+        quantity:
+          type: number
+          exclusiveMinimum: 0
+        unitPrice:
+          type: number
+          minimum: 0
+
+    QuoteRequestedPayload:
+      type: object
+      required:
+        - customerId
+        - items
+        - currency
+        - validUntil
+      properties:
+        customerId:
+          type: string
+          minLength: 1
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/QuoteItem'
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+        validUntil:
+          type: string
+          format: date-time
+
+    QuoteRequestedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventMetadata'
+        - type: object
+          required:
+            - payload
+          properties:
+            eventType:
+              const: os.quote.requested.v1
+            source:
+              const: os-service
+            payload:
+              $ref: '#/components/schemas/QuoteRequestedPayload'
+
+    OsCancelledEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventMetadata'
+        - type: object
+          required:
+            - payload
+          properties:
+            eventType:
+              const: os.cancelled.v1
+            source:
+              const: os-service
+            payload:
+              type: object
+              required:
+                - reason
+                - cancelledAt
+              properties:
+                reason:
+                  type: string
+                  minLength: 1
+                cancelledAt:
+                  type: string
+                  format: date-time
+
+    QuoteCreatedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventMetadata'
+        - $ref: '#/components/schemas/BillingEventSource'
+        - type: object
+          required:
+            - payload
+          properties:
+            eventType:
+              const: billing.quote.created.v1
+            payload:
+              $ref: '#/components/schemas/QuoteCreatedPayload'
+
+    QuoteCreatedPayload:
+      type: object
+      required:
+        - quoteId
+        - customerId
+        - total
+        - currency
+        - status
+        - validUntil
+      properties:
+        quoteId:
+          type: string
+          minLength: 1
+        customerId:
+          type: string
+          minLength: 1
+        total:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+        status:
+          const: DRAFT
+        validUntil:
+          type: string
+          format: date-time
+
+    QuoteSubmittedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventMetadata'
+        - $ref: '#/components/schemas/BillingEventSource'
+        - type: object
+          required:
+            - payload
+          properties:
+            eventType:
+              const: billing.quote.submitted.v1
+            payload:
+              $ref: '#/components/schemas/QuoteSubmittedPayload'
+
+    QuoteSubmittedPayload:
+      type: object
+      required:
+        - quoteId
+        - total
+        - currency
+        - status
+        - validUntil
+      properties:
+        quoteId:
+          type: string
+          minLength: 1
+        total:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+        status:
+          const: PENDING_APPROVAL
+        validUntil:
+          type: string
+          format: date-time
+
+    QuoteApprovedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventMetadata'
+        - $ref: '#/components/schemas/BillingEventSource'
+        - type: object
+          required:
+            - payload
+          properties:
+            eventType:
+              const: billing.quote.approved.v1
+            payload:
+              $ref: '#/components/schemas/QuoteApprovedPayload'
+
+    QuoteApprovedPayload:
+      type: object
+      required:
+        - quoteId
+        - total
+        - currency
+        - status
+        - decidedAt
+      properties:
+        quoteId:
+          type: string
+          minLength: 1
+        total:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+        status:
+          const: APPROVED
+        decidedAt:
+          type: string
+          format: date-time
+
+    QuoteRejectedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventMetadata'
+        - $ref: '#/components/schemas/BillingEventSource'
+        - type: object
+          required:
+            - payload
+          properties:
+            eventType:
+              const: billing.quote.rejected.v1
+            payload:
+              $ref: '#/components/schemas/QuoteRejectedPayload'
+
+    QuoteRejectedPayload:
+      type: object
+      required:
+        - quoteId
+        - status
+        - reason
+        - decidedAt
+      properties:
+        quoteId:
+          type: string
+          minLength: 1
+        status:
+          const: REJECTED
+        reason:
+          type: string
+          minLength: 1
+        decidedAt:
+          type: string
+          format: date-time
+
+    QuoteCancelledEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventMetadata'
+        - $ref: '#/components/schemas/BillingEventSource'
+        - type: object
+          required:
+            - payload
+          properties:
+            eventType:
+              const: billing.quote.cancelled.v1
+            payload:
+              $ref: '#/components/schemas/QuoteCancelledPayload'
+
+    QuoteCancelledPayload:
+      type: object
+      required:
+        - quoteId
+        - status
+        - reason
+        - cancelledAt
+      properties:
+        quoteId:
+          type: string
+          minLength: 1
+        status:
+          const: CANCELLED
+        reason:
+          type: string
+          minLength: 1
+        cancelledAt:
+          type: string
+          format: date-time
+
+    QuoteFailedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventMetadata'
+        - $ref: '#/components/schemas/BillingEventSource'
+        - type: object
+          required:
+            - payload
+          properties:
+            eventType:
+              const: billing.quote.failed.v1
+            payload:
+              $ref: '#/components/schemas/QuoteFailedPayload'
+
+    QuoteFailedPayload:
+      type: object
+      required:
+        - code
+        - message
+        - failedAt
+      properties:
+        code:
+          type: string
+          enum:
+            - INVALID_QUOTE_DATA
+            - QUOTE_CONFLICT
+            - PROCESSING_ERROR
+        message:
+          type: string
+          minLength: 1
+        failedAt:
+          type: string
+          format: date-time
+
+    PaymentStatusPayload:
+      type: object
+      required:
+        - paymentId
+        - quoteId
+        - amount
+        - currency
+        - status
+        - changedAt
+      properties:
+        paymentId:
+          type: string
+          minLength: 1
+        quoteId:
+          type: string
+          minLength: 1
+        amount:
+          type: number
+          exclusiveMinimum: 0
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+        status:
+          type: string
+          enum:
+            - PENDING
+            - IN_PROCESS
+            - APPROVED
+            - REJECTED
+            - CANCELLED
+        externalPaymentId:
+          type:
+            - string
+            - 'null'
+        providerStatus:
+          type:
+            - string
+            - 'null'
+        changedAt:
+          type: string
+          format: date-time
+
+    PaymentPendingEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventMetadata'
+        - $ref: '#/components/schemas/BillingEventSource'
+        - type: object
+          required:
+            - payload
+          properties:
+            eventType:
+              const: billing.payment.pending.v1
+            payload:
+              allOf:
+                - $ref: '#/components/schemas/PaymentStatusPayload'
+                - type: object
+                  properties:
+                    status:
+                      const: PENDING
+
+    PaymentApprovedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventMetadata'
+        - $ref: '#/components/schemas/BillingEventSource'
+        - type: object
+          required:
+            - payload
+          properties:
+            eventType:
+              const: billing.payment.approved.v1
+            payload:
+              allOf:
+                - $ref: '#/components/schemas/PaymentStatusPayload'
+                - type: object
+                  properties:
+                    status:
+                      const: APPROVED
+
+    PaymentRejectedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventMetadata'
+        - $ref: '#/components/schemas/BillingEventSource'
+        - type: object
+          required:
+            - payload
+          properties:
+            eventType:
+              const: billing.payment.rejected.v1
+            payload:
+              allOf:
+                - $ref: '#/components/schemas/PaymentStatusPayload'
+                - type: object
+                  properties:
+                    status:
+                      enum:
+                        - REJECTED
+                        - CANCELLED
+
+    PaymentFailedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventMetadata'
+        - $ref: '#/components/schemas/BillingEventSource'
+        - type: object
+          required:
+            - payload
+          properties:
+            eventType:
+              const: billing.payment.failed.v1
+            payload:
+              type: object
+              required:
+                - paymentId
+                - quoteId
+                - status
+                - code
+                - message
+                - failedAt
+              properties:
+                paymentId:
+                  type: string
+                quoteId:
+                  type: string
+                status:
+                  const: ERROR
+                code:
+                  type: string
+                message:
+                  type: string
+                failedAt:
+                  type: string
+                  format: date-time
+
+    BillingEventSource:
+      type: object
+      properties:
+        source:
+          const: billing-service

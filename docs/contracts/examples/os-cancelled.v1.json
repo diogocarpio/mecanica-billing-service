@@ -1,0 +1,14 @@
+{
+  "eventId": "d2883c85-df20-4f64-823e-03e17a5be600",
+  "eventType": "os.cancelled.v1",
+  "eventVersion": 1,
+  "occurredAt": "2026-11-15T21:10:00Z",
+  "source": "os-service",
+  "correlationId": "OS-2026-0001",
+  "causationId": "4d53a249-80bd-47d3-95ca-d4513b6d47c1",
+  "osId": "OS-2026-0001",
+  "payload": {
+    "reason": "Cancelamento solicitado pelo cliente",
+    "cancelledAt": "2026-11-15T21:10:00Z"
+  }
+}
