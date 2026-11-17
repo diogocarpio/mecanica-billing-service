@@ -120,6 +120,8 @@ class IntegrationEventTest {
 
         assertThatThrownBy(() -> EventContext.started(" "))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new EventContext(null, null))
+                .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> EventContext.from(null))
                 .isInstanceOf(NullPointerException.class);
     }
