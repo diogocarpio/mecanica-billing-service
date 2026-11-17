@@ -31,3 +31,35 @@ O cenário cross-service permanece uma atividade conjunta porque depende dos
 repositórios, contratos implantados e ambiente dos demais alunos. O BDD de
 falha/compensação acima é local (mocks de repositório, Inbox e Outbox); a
 versão ponta a ponta com broker real e os demais serviços continua pendente.
+
+## Cenários cross-service a executar com o grupo
+
+Ambiente mínimo: OS Service, Billing Service, RabbitMQ com exchange/DLX,
+MongoDB do Billing e Mercado Pago sandbox ou stub HTTP acordado.
+
+### Fluxo feliz
+
+1. OS Service publica `os.quote.requested.v1` para uma OS real.
+2. Billing consome de forma idempotente, persiste o orçamento e publica
+   `billing.quote.created.v1`/`billing.quote.submitted.v1`.
+3. Cliente aprova pela API do Billing; Billing publica
+   `billing.quote.approved.v1`.
+4. `POST /api/v1/payments` cria uma única preferência e retorna checkout.
+5. Webhook assinado é validado, o provedor é consultado e o pagamento vai a
+   `APPROVED`; Billing publica `billing.payment.approved.v1`.
+6. OS Service consome os eventos e atualiza a OS sem acessar o banco do
+   Billing.
+
+### Falha/compensação
+
+1. OS Service publica `os.cancelled.v1` para uma OS com orçamento pendente.
+2. Billing marca o orçamento como `CANCELLED` e publica
+   `billing.quote.cancelled.v1` sem efeitos duplicados.
+3. Uma solicitação inválida deve publicar `billing.quote.failed.v1` e impedir
+   avanço da OS.
+4. Uma falha transitória de publicação deve aparecer em retry/DLQ e ser
+   reprocessada sem duplicar Inbox/Outbox.
+
+Esses cenários só podem ser marcados como validados depois de executados
+contra os serviços reais; os testes locais do Billing não substituem essa
+evidência.

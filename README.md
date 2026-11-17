@@ -181,13 +181,13 @@ Credenciais reais não devem ser versionadas.
 
 ## Qualidade
 
-O comando `./mvnw verify` executa 68 testes (incluindo integração com
-Testcontainers — MongoDB + RabbitMQ — e um cenário BDD em Cucumber) e
+O comando `./mvnw verify` executa 77 testes (incluindo integração com
+Testcontainers — MongoDB + RabbitMQ — e três cenários Cucumber) e
 reprova o build se a cobertura de linhas ficar abaixo de 80%. No último
-incremento validado:
+`verify` local aprovado:
 
-- 68 testes, sem falhas, erros ou skips;
-- aproximadamente 89,6% de cobertura de linhas;
+- 77 testes, sem falhas, erros ou skips;
+- 92,33% de cobertura de linhas e 65,68% de branches;
 - relatório JaCoCo local em `target/site/jacoco/index.html`;
 
 ## Observabilidade
@@ -228,8 +228,8 @@ Pendências reais para as próximas etapas:
 
 - executar o teste controlado no sandbox do Mercado Pago com as credenciais da
   equipe;
-- implementar o BDD cross-service e o cenário de falha/compensação com os
-  demais serviços;
+- executar o BDD cross-service de sucesso e o cenário ponta a ponta de
+  falha/compensação com os demais serviços;
 - configurar e publicar o quality gate do Sonar, scans de dependências,
   secrets e imagem, e executar publicação/deploy do Kubernetes;
 - integrar métricas, traces e dashboard/alertas às ferramentas da Fase 3.

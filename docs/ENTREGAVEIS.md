@@ -126,7 +126,8 @@ verificada no Mercado Pago avança a OS.
 
 - [x] Configurar JaCoCo com gate mínimo de 80%.
 - [x] Criar testes unitários iniciais de domínio, aplicação e API.
-- [x] Manter cobertura acima de 80% (89,61% de linhas).
+- [x] Manter cobertura acima de 80% (92,33% de linhas e 65,68% de branches no
+      último `verify` local).
 - [x] Testar Inbox, Outbox, publisher confirms, retry e listeners.
 - [x] Adicionar testes de integração com MongoDB e RabbitMQ (Testcontainers).
 - [x] Testar contratos HTTP e de eventos (MockMvc standalone +

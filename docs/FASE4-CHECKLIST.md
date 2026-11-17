@@ -47,6 +47,11 @@ Situação em 15/11/2026:
 O repositório contém somente `README.md` e `.gitignore`. Portanto, a entrega do
 Aluno 2 ainda está em fase de planejamento.
 
+> Nota de auditoria: a tabela acima é o diagnóstico histórico de 15/11/2026.
+> O estado atual verificado está em `docs/ENTREGAVEIS.md` e
+> `docs/ENTREGAS-EVIDENCIAS.md`; vários itens implementados depois ainda
+> aparecem como pendentes nos Marcos detalhados abaixo até a próxima revisão.
+
 ## 3. Decisões que precisam ser alinhadas com o grupo
 
 Estas definições bloqueiam os contratos entre serviços e devem ser fechadas
@@ -262,24 +267,24 @@ depender de banco compartilhado.
 
 ### Marco 1 - Fundação da aplicação
 
-- [ ] Criar projeto Java 17 + Spring Boot 3.x com Maven Wrapper.
-- [ ] Adicionar Web, Validation, MongoDB, AMQP, Actuator e OpenAPI.
-- [ ] Organizar camadas de domínio, aplicação e adaptadores.
-- [ ] Criar configuração por profiles, sem secrets versionados.
-- [ ] Implementar tratamento padronizado de erros e correlation ID.
+- [x] Criar projeto Java 17 + Spring Boot 3.x com Maven Wrapper.
+- [x] Adicionar Web, Validation, MongoDB, AMQP, Actuator e OpenAPI.
+- [x] Organizar camadas de domínio, aplicação e adaptadores.
+- [x] Criar configuração por profiles, sem secrets versionados.
+- [x] Implementar tratamento padronizado de erros e correlation ID.
 - [ ] Configurar lint/formatação e análise estática.
 
 Critério de aceite: aplicação compila, sobe localmente e responde health check.
 
 ### Marco 2 - Orçamento
 
-- [ ] Implementar entidades, value objects, estados e regras.
-- [ ] Implementar cálculo monetário e validações.
-- [ ] Criar repositórios MongoDB e índices.
-- [ ] Implementar casos de uso de criar, enviar, consultar, aprovar e rejeitar.
-- [ ] Expor os endpoints necessários.
-- [ ] Garantir idempotência e concorrência.
-- [ ] Escrever testes unitários das regras e transições.
+- [x] Implementar entidades, value objects, estados e regras.
+- [x] Implementar cálculo monetário e validações.
+- [x] Criar repositórios MongoDB e índices.
+- [x] Implementar casos de uso de criar, enviar, consultar, aprovar e rejeitar.
+- [x] Expor os endpoints necessários.
+- [x] Garantir idempotência e concorrência.
+- [x] Escrever testes unitários das regras e transições.
 
 Critério de aceite: fluxo de orçamento funciona localmente e rejeita transições
 inválidas.
@@ -314,12 +319,12 @@ gera o evento esperado; notificações falsas ou repetidas não alteram o estado
 
 ### Marco 5 - API e documentação técnica
 
-- [ ] Documentar endpoints, schemas, erros e autenticação no OpenAPI.
-- [ ] Manter Swagger UI acessível no ambiente apropriado.
+- [x] Documentar endpoints, schemas, erros e autenticação no OpenAPI.
+- [x] Manter Swagger UI acessível no ambiente apropriado.
 - [ ] Exportar coleção Postman se o grupo a utilizar.
 - [x] Criar exemplos de requests, webhooks e eventos do Billing.
-- [ ] Documentar variáveis de ambiente e execução local.
-- [ ] Documentar decisões arquiteturais e estratégia Saga no README.
+- [x] Documentar variáveis de ambiente e execução local.
+- [x] Documentar decisões arquiteturais e estratégia Saga no README.
 
 Critério de aceite: outra pessoa consegue executar e integrar o serviço usando
 somente a documentação.
@@ -387,7 +392,7 @@ se conecta às dependências sem credenciais embutidas.
 - [ ] Separar credenciais por ambiente com secrets do provedor de CI.
 - [ ] Exigir aprovação para produção, se houver produção no escopo.
 - [ ] Configurar rollback de deploy ou estratégia segura de rollout.
-- [ ] Proteger `main` com PR obrigatório e checks requeridos no GitHub.
+- [x] Proteger `main` com PR obrigatório e checks requeridos no GitHub.
 
 Critério de aceite: PR inválido não pode ser integrado e commit aprovado gera
 imagem rastreável e deploy verificável.

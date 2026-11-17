@@ -98,6 +98,24 @@ Antes de habilitar o deploy:
 5. Permitir que o kubelet faça pull da imagem no GHCR: tornar o pacote
    público ou criar um `imagePullSecret` no namespace `mecanica`.
 
+## Ordem sugerida para staging
+
+1. Provisionar namespace `mecanica`, Secret da aplicação, MongoDB replica set
+   e RabbitMQ acessíveis pelo cluster.
+2. Configurar `SONAR_ENABLED`, `SONAR_PROJECT_KEY`, `SONAR_HOST_URL`,
+   `SONAR_ORGANIZATION` e `SONAR_TOKEN`; resolver no SonarCloud o conflito
+   entre Automatic Analysis e CI analysis antes de exigir o quality gate.
+3. Configurar `KUBERNETES_DEPLOY_ENABLED=true` e o secret de ambiente
+   `staging` `KUBE_CONFIG_BASE64` com service account restrita ao namespace.
+4. Executar `Billing Release` em `main` ou via `workflow_dispatch`; o deploy
+   só ocorre se todas as validações anteriores passarem.
+5. Verificar `kubectl -n mecanica rollout status deployment/billing-service`
+   e os endpoints `/actuator/health`, `/actuator/health/liveness` e
+   `/actuator/health/readiness`.
+6. Em caso de falha, reverter com
+   `kubectl -n mecanica rollout undo deployment/billing-service` e registrar
+   a evidência do incidente.
+
 ## Rollback
 
 O pipeline não executa rollback automático (não há revisão anterior garantida
@@ -120,9 +138,12 @@ kubectl -n mecanica rollout undo deployment/billing-service
   atualizada com os checks `Build and tests`, `Kubernetes manifests` e
   `Container build`, aplica-se a administradores e bloqueia force-push e
   exclusão da branch.
-- Pendente: análise Sonar e quality gate, configuração das variáveis e
-  secrets acima, publicação no GHCR, provisionamento do ambiente `staging`
-  e deploy real validado.
+- Pendente: análise Sonar e quality gate. O SonarCloud reconhece o projeto,
+  mas reporta conflito entre Automatic Analysis e CI analysis mesmo com
+  `-Dsonar.ci.autoconfig.disabled=true`; tratar como bloqueio externo até o
+  painel/projeto ser ajustado. Configuração das variáveis e secrets acima,
+  publicação no GHCR, provisionamento do ambiente `staging` e deploy real
+  validado.
 - Scans Trivy de filesystem e imagem adicionados ao job `image` do CI
   (não bloqueantes, `exit-code 0`, imagem `aquasec/trivy:0.58.2` fixada);
   relatórios publicados como artefato `security-scans`. A primeira execução

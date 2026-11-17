@@ -55,7 +55,7 @@ Comandos já documentados no README (nenhuma configuração adicional):
 
 ```bash
 docker compose up -d --wait   # sobe MongoDB (replica set) e RabbitMQ
-./mvnw clean verify           # compila, executa 68 testes e valida JaCoCo >= 80%
+./mvnw clean verify           # compila, executa 77 testes e valida JaCoCo >= 80%
 ./mvnw spring-boot:run        # inicia a aplicação em :8080
 ```
 
@@ -80,13 +80,13 @@ curl http://localhost:8080/actuator/health
 | Validação de manifests Kubernetes | kubeconform aprovou 5 manifests no CI (run 43959216320) | Verificado em CI |
 | Build de imagem no CI | Job `Container build` do workflow Billing CI | Verificado em CI |
 | Imagem Docker local | `mecanica/billing-service:local` construída; container respondeu health UP com liveness/readiness | Verificado localmente |
-| Cobertura JaCoCo local | `target/site/jacoco/index.html` e `target/surefire-reports` (~89,6% de linhas, gate >=80% aprovado) | Verificado localmente |
+| Cobertura JaCoCo local | `./mvnw clean verify` local: 77 testes, 0 falhas/erros/skips; JaCoCo 92,33% de linhas, 65,68% de branches, gate >=80% aprovado | Verificado localmente |
 | Contrato e exemplos de eventos | `docs/contracts/asyncapi.yaml` e `docs/contracts/examples` | Verificado |
 | Contratos HTTP e de eventos | `HttpContractTest` (MockMvc standalone: criação/erros `ApiError`, webhook 401, `X-Correlation-Id`) e `EventContractTest` (envelope JSON dos exemplos) | Verificado localmente |
-| BDD do Billing | Cenário Cucumber local aprovado (documentado em `docs/bdd/BILLING-BDD.md`) | Verificado localmente |
+| BDD do Billing | Cenários Cucumber locais aprovados (documentados em `docs/bdd/BILLING-BDD.md`) | Verificado localmente |
 | BDD de falha/compensação | `billing-saga-failure.feature`: `QUOTE_FAILED`/`INVALID_QUOTE_DATA` e cancelamento com `QUOTE_CANCELLED` (mocks locais) | Verificado localmente |
 | Reprocessamento de DLQ | [docs/DLQ-REPROCESSAMENTO.md](DLQ-REPROCESSAMENTO.md): runbook de DLQ RabbitMQ e Outbox `FAILED` | Documentado |
-| Quality gate Sonar | Workflow preparado, mas análise não executada (`SONAR_ENABLED`/variáveis não provisionadas) | Pendente |
+| Quality gate Sonar | Workflow preparado e `sonar.ci.autoconfig.disabled=true` aplicado; SonarCloud reconhece o projeto, mas reporta conflito Automatic Analysis vs CI analysis; análise/quality gate não aprovados | Bloqueado externo |
 | Scans de dependências, secrets e imagem | Trivy (`aquasec/trivy:0.58.2`) não bloqueante adicionado ao job `image` do CI; relatórios como artefato `security-scans`; primeira execução remota pendente do próximo push | Pendente execução remota |
 | Publicação GHCR e deploy Kubernetes | Jobs criados, opt-in; nunca executados; secrets/ambiente staging não provisionados | Pendente |
 | Sandbox real Mercado Pago | Implementação e testes com provedor controlado aprovados; teste com credenciais reais de sandbox pendente (depende da aplicação Mercado Pago da equipe) | Pendente |
@@ -111,9 +111,10 @@ curl http://localhost:8080/actuator/health
 - **Pagamento:** link de checkout do Mercado Pago criado apenas após
   aprovação do orçamento; webhook assinado + consulta ao provedor confirmam o
   pagamento de forma idempotente.
-- **Testes e cobertura:** 68 testes no `./mvnw verify` (unitários, integração
-  Testcontainers e Cucumber), gate JaCoCo >=80% com ~89,6% de linhas
-  verificado no CI e localmente.
+- **Testes e cobertura:** 77 testes no `./mvnw clean verify` local (unitários,
+  integração Testcontainers, contratos HTTP/eventos e três cenários Cucumber),
+  gate JaCoCo >=80% com 92,33% de linhas e 65,68% de branches verificados
+  localmente; CI anterior validou 68 testes no commit `1b90fff`.
 - **Observabilidade:** correlationId propagado em HTTP/RabbitMQ, MDC nos
   listeners e métricas Prometheus.
 - **Container/Kubernetes/CI-CD:** Dockerfile multi-stage não root, manifests
