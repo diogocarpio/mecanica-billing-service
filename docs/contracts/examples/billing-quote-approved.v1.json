@@ -1,0 +1,17 @@
+{
+  "eventId": "59536845-fd8a-4bf1-831e-a4e34ecbde63",
+  "eventType": "billing.quote.approved.v1",
+  "eventVersion": 1,
+  "occurredAt": "2026-11-15T21:00:00Z",
+  "source": "billing-service",
+  "correlationId": "OS-2026-0001",
+  "causationId": "28de650f-7483-423b-b5d7-d7060c138771",
+  "osId": "OS-2026-0001",
+  "payload": {
+    "quoteId": "QUOTE-2026-0001",
+    "total": 165.50,
+    "currency": "BRL",
+    "status": "APPROVED",
+    "decidedAt": "2026-11-15T21:00:00Z"
+  }
+}
