@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import br.com.fiap.mecanica.billing.payment.application.MercadoPagoException;
+import br.com.fiap.mecanica.billing.payment.application.PaymentNotFoundException;
+import br.com.fiap.mecanica.billing.payment.application.WebhookSignatureException;
 import br.com.fiap.mecanica.billing.quote.application.QuoteAlreadyExistsException;
 import br.com.fiap.mecanica.billing.quote.application.QuoteNotFoundException;
 import br.com.fiap.mecanica.billing.quote.domain.InvalidQuoteStateException;
@@ -39,6 +42,23 @@ class GlobalExceptionHandlerTest {
 
         assertThat(duplicate.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(invalidState.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @Test
+    void shouldHandleProviderAndSignatureFailures() {
+        var provider = handler.handleProviderFailure(
+                new MercadoPagoException("mp down"), request
+        );
+        var signature = handler.handleUnauthorized(
+                new WebhookSignatureException("bad sig"), request
+        );
+        var paymentNotFound = handler.handleNotFound(
+                new PaymentNotFoundException("PAY-1"), request
+        );
+
+        assertThat(provider.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
+        assertThat(signature.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(paymentNotFound.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test

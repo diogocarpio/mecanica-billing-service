@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({QuoteNotFoundException.class, PaymentNotFoundException.class})
     public ResponseEntity<ApiError> handleNotFound(
-            QuoteNotFoundException exception,
+            RuntimeException exception,
             HttpServletRequest request
     ) {
         return response(HttpStatus.NOT_FOUND, exception.getMessage(), request, Map.of());

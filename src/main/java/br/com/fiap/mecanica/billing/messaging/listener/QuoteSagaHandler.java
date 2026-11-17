@@ -2,6 +2,7 @@ package br.com.fiap.mecanica.billing.messaging.listener;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Objects;
 
 import br.com.fiap.mecanica.billing.messaging.contract.EventContext;
 import br.com.fiap.mecanica.billing.messaging.contract.IntegrationEvent;
@@ -118,7 +119,7 @@ public class QuoteSagaHandler {
         return inboxProcessor.process(event, () -> eventPublisher.quoteFailed(
                 event.osId(),
                 code,
-                message == null ? code : message,
+                Objects.requireNonNullElse(message, code),
                 EventContext.from(event)
         ));
     }

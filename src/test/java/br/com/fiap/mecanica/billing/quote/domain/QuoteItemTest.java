@@ -23,6 +23,22 @@ class QuoteItemTest {
     }
 
     @Test
+    void shouldRejectNullValues() {
+        assertThatThrownBy(() -> new QuoteItem(
+                null, QuoteItemType.PART, BigDecimal.ONE, BigDecimal.ONE
+        )).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new QuoteItem(
+                "Part", QuoteItemType.PART, null, BigDecimal.ONE
+        )).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new QuoteItem(
+                "Part", QuoteItemType.PART, BigDecimal.ONE, null
+        )).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new QuoteItem(
+                "Part", QuoteItemType.PART, BigDecimal.ONE, BigDecimal.ONE, null
+        )).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void shouldRejectInvalidValues() {
         assertThatThrownBy(() -> new QuoteItem(
                 " ",

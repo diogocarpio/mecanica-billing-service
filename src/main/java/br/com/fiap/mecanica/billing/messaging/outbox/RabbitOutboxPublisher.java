@@ -94,6 +94,9 @@ public class RabbitOutboxPublisher {
             event.markPublished(Instant.now(clock));
             repository.save(event);
             metrics.outboxPublish(true, event.getEventType());
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while waiting for RabbitMQ confirm", exception);
         } catch (Exception exception) {
             long retryDelay = Math.min(1L << Math.min(event.getAttempts(), 8), 300L);
             event.markFailedAttempt(
