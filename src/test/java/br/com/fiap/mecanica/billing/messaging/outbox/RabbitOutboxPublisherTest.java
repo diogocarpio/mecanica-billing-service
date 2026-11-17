@@ -102,4 +102,145 @@ class RabbitOutboxPublisherTest {
         assertThat(event.getNextAttemptAt()).isEqualTo(NOW.plusSeconds(1));
         verify(repository).save(event);
     }
+    @Test
+    void shouldPublishEventWithCorrelationIdFromPayload() {
+        OutboxEvent event = OutboxEvent.pending(
+                "1", "event.v1", "{\"correlationId\":\"corr-1\"}", NOW
+        );
+        when(repository.findTop50ByStatusAndNextAttemptAtLessThanEqualOrderByCreatedAtAsc(
+                OutboxStatus.PENDING,
+                NOW
+        )).thenReturn(List.of(event));
+        doAnswer(invocation -> {
+            CorrelationData correlationData = invocation.getArgument(3);
+            correlationData.getFuture().complete(new CorrelationData.Confirm(true, null));
+            return null;
+        }).when(rabbitTemplate).send(
+                eq("mecanica.events"),
+                eq("event.v1"),
+                any(Message.class),
+                any(CorrelationData.class)
+        );
+
+        publisher.publishPendingEvents();
+
+        assertThat(event.getStatus()).isEqualTo(OutboxStatus.PUBLISHED);
+    }
+
+    @Test
+    void shouldScheduleRetryWhenBrokerNacks() {
+        OutboxEvent event = OutboxEvent.pending("1", "event.v1", "{}", NOW);
+        when(repository.findTop50ByStatusAndNextAttemptAtLessThanEqualOrderByCreatedAtAsc(
+                OutboxStatus.PENDING,
+                NOW
+        )).thenReturn(List.of(event));
+        doAnswer(invocation -> {
+            CorrelationData correlationData = invocation.getArgument(3);
+            correlationData.getFuture().complete(new CorrelationData.Confirm(false, "nacked"));
+            return null;
+        }).when(rabbitTemplate).send(
+                eq("mecanica.events"),
+                eq("event.v1"),
+                any(Message.class),
+                any(CorrelationData.class)
+        );
+
+        publisher.publishPendingEvents();
+
+        assertThat(event.getStatus()).isEqualTo(OutboxStatus.PENDING);
+        assertThat(event.getAttempts()).isEqualTo(1);
+    }
+
+    @Test
+    void shouldMarkEventFailedPermanentlyAfterMaxAttempts() {
+        OutboxEvent event = new OutboxEvent(
+                "1", "event.v1", "{}", OutboxStatus.PENDING, 2, NOW, NOW, null, null
+        );
+        when(repository.findTop50ByStatusAndNextAttemptAtLessThanEqualOrderByCreatedAtAsc(
+                OutboxStatus.PENDING,
+                NOW
+        )).thenReturn(List.of(event));
+        doThrow(new AmqpException("down")).when(rabbitTemplate).send(
+                eq("mecanica.events"),
+                eq("event.v1"),
+                any(Message.class),
+                any(CorrelationData.class)
+        );
+
+        publisher.publishPendingEvents();
+
+        assertThat(event.getStatus()).isEqualTo(OutboxStatus.FAILED);
+        assertThat(event.getAttempts()).isEqualTo(3);
+        verify(metrics).outboxFailedPermanently("event.v1");
+    }
+
+    @Test
+    void shouldHandleInvalidJsonPayload() {
+        OutboxEvent event = OutboxEvent.pending("1", "event.v1", "not-json{", NOW);
+        when(repository.findTop50ByStatusAndNextAttemptAtLessThanEqualOrderByCreatedAtAsc(
+                OutboxStatus.PENDING,
+                NOW
+        )).thenReturn(List.of(event));
+        doAnswer(invocation -> {
+            CorrelationData correlationData = invocation.getArgument(3);
+            correlationData.getFuture().complete(new CorrelationData.Confirm(true, null));
+            return null;
+        }).when(rabbitTemplate).send(
+                eq("mecanica.events"),
+                eq("event.v1"),
+                any(Message.class),
+                any(CorrelationData.class)
+        );
+
+        publisher.publishPendingEvents();
+
+        assertThat(event.getStatus()).isEqualTo(OutboxStatus.PUBLISHED);
+    }
+
+    @Test
+    void shouldHandleNonTextualCorrelationId() {
+        OutboxEvent event = OutboxEvent.pending(
+                "1", "event.v1", "{\"correlationId\":123}", NOW
+        );
+        when(repository.findTop50ByStatusAndNextAttemptAtLessThanEqualOrderByCreatedAtAsc(
+                OutboxStatus.PENDING,
+                NOW
+        )).thenReturn(List.of(event));
+        doAnswer(invocation -> {
+            CorrelationData correlationData = invocation.getArgument(3);
+            correlationData.getFuture().complete(new CorrelationData.Confirm(true, null));
+            return null;
+        }).when(rabbitTemplate).send(
+                eq("mecanica.events"),
+                eq("event.v1"),
+                any(Message.class),
+                any(CorrelationData.class)
+        );
+
+        publisher.publishPendingEvents();
+
+        assertThat(event.getStatus()).isEqualTo(OutboxStatus.PUBLISHED);
+    }
+    @Test
+    void shouldPropagateInterruptedException() {
+        OutboxEvent event = OutboxEvent.pending("1", "event.v1", "{}", NOW);
+        when(repository.findTop50ByStatusAndNextAttemptAtLessThanEqualOrderByCreatedAtAsc(
+                OutboxStatus.PENDING,
+                NOW
+        )).thenReturn(List.of(event));
+        doAnswer(invocation -> {
+            Thread.currentThread().interrupt();
+            return null;
+        }).when(rabbitTemplate).send(
+                eq("mecanica.events"),
+                eq("event.v1"),
+                any(Message.class),
+                any(CorrelationData.class)
+        );
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                () -> publisher.publishPendingEvents()
+        ).isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Interrupted");
+    }
 }

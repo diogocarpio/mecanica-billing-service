@@ -180,6 +180,43 @@ class HttpContractTest {
                         .value("/api/v1/payments/webhooks/mercado-pago"));
     }
 
+    @Test
+    void shouldFindPaymentByIdQuoteAndOs() throws Exception {
+        Payment payment = payment();
+        when(paymentService.findById("PAY-1")).thenReturn(payment);
+        when(paymentService.findByQuoteId("QUOTE-1")).thenReturn(payment);
+        when(paymentService.findByOsId("OS-1")).thenReturn(payment);
+
+        mockMvc.perform(get("/api/v1/payments/PAY-1")
+                        .header("X-Correlation-Id", CORRELATION_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("PAY-1"));
+        mockMvc.perform(get("/api/v1/payments")
+                        .param("quoteId", "QUOTE-1")
+                        .header("X-Correlation-Id", CORRELATION_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("PAY-1"));
+        mockMvc.perform(get("/api/v1/payments")
+                        .param("osId", "OS-1")
+                        .header("X-Correlation-Id", CORRELATION_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("PAY-1"));
+    }
+
+    @Test
+    void shouldAcceptValidWebhook() throws Exception {
+        when(paymentService.handleWebhook("MP-1", "payment", "req-1", "sig"))
+                .thenReturn(true);
+
+        mockMvc.perform(post("/api/v1/payments/webhooks/mercado-pago")
+                        .param("data.id", "MP-1")
+                        .param("type", "payment")
+                        .header("X-Correlation-Id", CORRELATION_ID)
+                        .header("x-request-id", "req-1")
+                        .header("x-signature", "sig"))
+                .andExpect(status().isNoContent());
+    }
+
     private String validQuoteJson() {
         return """
                 {

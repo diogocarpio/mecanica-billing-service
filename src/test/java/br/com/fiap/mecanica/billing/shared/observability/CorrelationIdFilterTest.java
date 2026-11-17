@@ -43,6 +43,28 @@ class CorrelationIdFilterTest {
     }
 
     @Test
+    void shouldGenerateCorrelationIdWhenHeaderIsBlank() throws Exception {
+        var request = new MockHttpServletRequest();
+        request.addHeader(CorrelationIdFilter.HEADER, "  ");
+        var response = new MockHttpServletResponse();
+        FilterChain chain = mock(FilterChain.class);
+
+        filter.doFilter(request, response, chain);
+
+        assertThat(response.getHeader(CorrelationIdFilter.HEADER)).isNotBlank();
+    }
+
+    @Test
+    void shouldRegisterFailureOutcomeCounter() {
+        var registry = new SimpleMeterRegistry();
+        var metrics = new BillingMetrics(registry);
+
+        metrics.outboxPublish(false, "billing.payment.failed.v1");
+
+        assertThat(registry.get("billing.outbox.publish").counter().count()).isEqualTo(1.0);
+    }
+
+    @Test
     void shouldRegisterMicrometerCounters() {
         var registry = new SimpleMeterRegistry();
         var metrics = new BillingMetrics(registry);

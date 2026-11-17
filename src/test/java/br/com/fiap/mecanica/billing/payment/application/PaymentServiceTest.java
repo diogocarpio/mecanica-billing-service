@@ -160,6 +160,75 @@ class PaymentServiceTest {
         verify(persistenceService).applyProviderPayment(providerPayment);
     }
 
+    @Test
+    void shouldThrowNotFoundForMissingPaymentLookups() {
+        when(paymentRepository.findById("missing")).thenReturn(Optional.empty());
+        when(paymentRepository.findByQuoteId("missing")).thenReturn(Optional.empty());
+        when(paymentRepository.findByOsId("missing")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.findById("missing"))
+                .isInstanceOf(PaymentNotFoundException.class);
+        assertThatThrownBy(() -> service.findByQuoteId("missing"))
+                .isInstanceOf(PaymentNotFoundException.class);
+        assertThatThrownBy(() -> service.findByOsId("missing"))
+                .isInstanceOf(PaymentNotFoundException.class);
+    }
+
+    @Test
+    void shouldRejectPreferenceForMissingQuote() {
+        when(quoteRepository.findById("missing")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.createPreference("missing", "payer@test.com"))
+                .isInstanceOf(InvalidPaymentStateException.class);
+    }
+
+    @Test
+    void shouldReturnTerminalPaymentWithoutCreatingPreference() {
+        Quote quote = quote(QuoteStatus.APPROVED);
+        Payment payment = payment();
+        payment.applyProviderStatus(
+                "MP-1", "approved", "x", br.com.fiap.mecanica.billing.payment.domain.PaymentStatus.APPROVED, NOW
+        );
+        when(quoteRepository.findById("QUOTE-1")).thenReturn(Optional.of(quote));
+        when(persistenceService.createOrGet(quote)).thenReturn(payment);
+
+        assertThat(service.createPreference("QUOTE-1", "payer@test.com")).isSameAs(payment);
+
+        verify(gateway, never()).createPreference(any());
+    }
+
+    @Test
+    void shouldRetryPreferenceCreationAfterError() {
+        Quote quote = quote(QuoteStatus.APPROVED);
+        Payment payment = payment();
+        payment.markError("PROVIDER", "down", NOW);
+        var preference = new MercadoPagoGateway.PreferenceResult("PREF-1", "https://checkout.test/1");
+        when(quoteRepository.findById("QUOTE-1")).thenReturn(Optional.of(quote));
+        when(persistenceService.createOrGet(quote)).thenReturn(payment);
+        when(gateway.createPreference(any())).thenReturn(preference);
+        when(persistenceService.attachPreference(payment.getId(), preference)).thenReturn(payment);
+
+        assertThat(service.createPreference("QUOTE-1", "payer@test.com")).isSameAs(payment);
+
+        verify(gateway).createPreference(any());
+    }
+
+    @Test
+    void shouldSkipReconciliationWhenProviderHasNoPayment() {
+        Payment payment = payment();
+        when(paymentRepository
+                .findTop50ByStatusInAndUpdatedAtBeforeOrderByUpdatedAtAsc(
+                        any(),
+                        eq(NOW.minus(Duration.ofMinutes(5)))
+                )).thenReturn(List.of(payment));
+        when(gateway.findPaymentByExternalReference(payment.getId()))
+                .thenReturn(Optional.empty());
+
+        service.reconcilePendingPayments();
+
+        verify(persistenceService, never()).applyProviderPayment(any());
+    }
+
     private Payment payment() {
         return Payment.create(
                 "QUOTE-1",

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -124,6 +125,38 @@ class QuoteTest {
         )).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> Quote.create(
                 "OS-1", "CUSTOMER-1", items, "BRL", NOW, NOW
+        )).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void shouldHandleNullItemsInPersistenceConstructor() {
+        Quote quote = new Quote(
+                "ID", "OS-1", "CUSTOMER-1", null, BigDecimal.ONE, "BRL",
+                QuoteStatus.DRAFT, VALID_UNTIL, NOW, NOW, null, null, null, 0L
+        );
+
+        assertThat(quote.getItems()).isEmpty();
+    }
+
+    @Test
+    void shouldRejectNullItemsAndNullElements() {
+        List<QuoteItem> items = List.of(item("Part", "10.00"));
+
+        assertThatThrownBy(() -> Quote.create(
+                "OS-1", "CUSTOMER-1", null, "BRL", VALID_UNTIL, NOW
+        )).isInstanceOf(IllegalArgumentException.class);
+
+        List<QuoteItem> withNull = new ArrayList<>(items);
+        withNull.add(null);
+        assertThatThrownBy(() -> Quote.create(
+                "OS-1", "CUSTOMER-1", withNull, "BRL", VALID_UNTIL, NOW
+        )).isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> Quote.create(
+                null, "CUSTOMER-1", items, "BRL", VALID_UNTIL, NOW
+        )).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> Quote.create(
+                "OS-1", "CUSTOMER-1", items, null, VALID_UNTIL, NOW
         )).isInstanceOf(IllegalArgumentException.class);
     }
 

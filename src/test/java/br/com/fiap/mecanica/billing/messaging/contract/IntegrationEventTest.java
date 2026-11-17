@@ -57,6 +57,54 @@ class IntegrationEventTest {
     }
 
     @Test
+    void shouldRejectBlankEnvelopeFields() {
+        assertThatThrownBy(() -> new IntegrationEvent<>(
+                null, "event", 1, NOW, "source", "corr", null, "OS-1", "payload"
+        )).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> new IntegrationEvent<>(
+                UUID.randomUUID(), " ", 1, NOW, "source", "corr", null, "OS-1", "payload"
+        )).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new IntegrationEvent<>(
+                UUID.randomUUID(), "event", 1, null, "source", "corr", null, "OS-1", "payload"
+        )).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> new IntegrationEvent<>(
+                UUID.randomUUID(), "event", 1, NOW, " ", "corr", null, "OS-1", "payload"
+        )).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new IntegrationEvent<>(
+                UUID.randomUUID(), "event", 1, NOW, "source", " ", null, "OS-1", "payload"
+        )).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new IntegrationEvent<>(
+                UUID.randomUUID(), "event", 1, NOW, "source", "corr", null, " ", "payload"
+        )).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new IntegrationEvent<>(
+                UUID.randomUUID(), "event", 1, NOW, "source", "corr", null, "OS-1", null
+        )).isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void shouldRejectNullEnvelopeFields() {
+        assertThatThrownBy(() -> new IntegrationEvent<>(
+                UUID.randomUUID(), null, 1, NOW, "source", "corr", null, "OS-1", "payload"
+        )).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new IntegrationEvent<>(
+                UUID.randomUUID(), "event", 1, NOW, null, "corr", null, "OS-1", "payload"
+        )).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new IntegrationEvent<>(
+                UUID.randomUUID(), "event", 1, NOW, "source", null, null, "OS-1", "payload"
+        )).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new IntegrationEvent<>(
+                UUID.randomUUID(), "event", 1, NOW, "source", "corr", null, null, "payload"
+        )).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void shouldRejectNullContextInBillingEvent() {
+        assertThatThrownBy(() -> IntegrationEvent.billingEvent(
+                EventTypes.QUOTE_CREATED, "OS-1", "payload", null, NOW
+        )).isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
     void shouldRejectInvalidEnvelope() {
         assertThatThrownBy(() -> new IntegrationEvent<>(
                 UUID.randomUUID(),

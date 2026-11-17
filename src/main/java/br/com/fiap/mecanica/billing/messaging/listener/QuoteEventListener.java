@@ -55,12 +55,8 @@ public class QuoteEventListener {
     }
 
     private void withMdc(IntegrationEvent<?> event, Runnable action) {
-        if (event.correlationId() != null) {
-            MDC.put("correlationId", event.correlationId());
-        }
-        if (event.eventId() != null) {
-            MDC.put("eventId", event.eventId().toString());
-        }
+        MDC.put("correlationId", event.correlationId());
+        MDC.put("eventId", event.eventId().toString());
         try {
             action.run();
             metrics.messageConsumed(event.eventType(), "processed");

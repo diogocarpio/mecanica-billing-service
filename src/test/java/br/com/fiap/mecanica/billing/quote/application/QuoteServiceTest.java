@@ -167,6 +167,50 @@ class QuoteServiceTest {
         verify(eventPublisher, never()).quoteSubmitted(any(), any());
     }
 
+    @Test
+    void shouldCheckQuoteExistenceByOsId() {
+        when(repository.existsByOsId("OS-1")).thenReturn(true);
+
+        assertThat(service.existsByOsId("OS-1")).isTrue();
+        assertThat(service.existsByOsId("OS-2")).isFalse();
+    }
+
+    @Test
+    void shouldSubmitWithExplicitContext() {
+        Quote quote = quote();
+        when(repository.findById("QUOTE-1")).thenReturn(Optional.of(quote));
+        when(repository.save(quote)).thenReturn(quote);
+
+        assertThat(service.submit("QUOTE-1", context()).getStatus())
+                .isEqualTo(QuoteStatus.PENDING_APPROVAL);
+    }
+
+    @Test
+    void shouldReturnQuoteWhenApproveIsNoOp() {
+        Quote quote = quote();
+        quote.submit(NOW.minusSeconds(1));
+        quote.approve(NOW.minusSeconds(1));
+        when(repository.findById("QUOTE-1")).thenReturn(Optional.of(quote));
+
+        assertThat(service.approve("QUOTE-1").getStatus()).isEqualTo(QuoteStatus.APPROVED);
+
+        verify(repository, never()).save(quote);
+        verify(eventPublisher, never()).quoteApproved(any(), any());
+    }
+
+    @Test
+    void shouldReturnQuoteWhenRejectIsNoOp() {
+        Quote quote = quote();
+        quote.submit(NOW.minusSeconds(2));
+        quote.reject("No", NOW.minusSeconds(1));
+        when(repository.findById("QUOTE-1")).thenReturn(Optional.of(quote));
+
+        assertThat(service.reject("QUOTE-1", "again").getStatus())
+                .isEqualTo(QuoteStatus.REJECTED);
+
+        verify(repository, never()).save(quote);
+    }
+
     private CreateQuoteCommand command() {
         return new CreateQuoteCommand(
                 "OS-1",
