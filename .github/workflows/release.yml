@@ -62,7 +62,6 @@ jobs:
             -Dsonar.host.url="$SONAR_HOST_URL"
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
             -Dsonar.qualitygate.wait=true
-            -Dsonar.ci.autoconfig.disabled=true
           )
           if [ -n "$SONAR_ORGANIZATION" ]; then
             args+=(-Dsonar.organization="$SONAR_ORGANIZATION")

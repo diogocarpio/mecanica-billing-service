@@ -223,9 +223,12 @@ execução do serviço.
 - [CI/CD e governança do pipeline](docs/CI-CD.md)
 - [Análise completa e checklist da Fase 4](docs/FASE4-CHECKLIST.md)
 - [Evidências das entregas](docs/ENTREGAS-EVIDENCIAS.md)
+- [Provisionamento externo e pré-requisitos](docs/PROVISIONAMENTO.md)
 
 Pendências reais para as próximas etapas:
 
+- executar os pré-requisitos externos listados em
+  [docs/PROVISIONAMENTO.md](docs/PROVISIONAMENTO.md);
 - executar o teste controlado no sandbox do Mercado Pago com as credenciais da
   equipe;
 - executar o BDD cross-service de sucesso e o cenário ponta a ponta de

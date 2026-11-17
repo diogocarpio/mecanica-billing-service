@@ -124,11 +124,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21 for Sonar
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
           cache: maven
 
       - name: Download test evidence
@@ -146,13 +146,17 @@ jobs:
           SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
           SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+          SONAR_QG_WAIT: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
         run: |
+          if [ -z "${SONAR_TOKEN}" ]; then
+            echo "::warning::SONAR_TOKEN não configurado. Análise SonarCloud ignorada."
+            exit 0
+          fi
           args=(
             -Dsonar.projectKey="$SONAR_PROJECT_KEY"
             -Dsonar.host.url="$SONAR_HOST_URL"
             -Dsonar.coverage.jacoco.xmlReportPaths=target/evidence/site/jacoco/jacoco.xml
-            -Dsonar.qualitygate.wait=true
-            -Dsonar.ci.autoconfig.disabled=true
+            -Dsonar.qualitygate.wait="$SONAR_QG_WAIT"
           )
           if [ -n "$SONAR_ORGANIZATION" ]; then
             args+=(-Dsonar.organization="$SONAR_ORGANIZATION")

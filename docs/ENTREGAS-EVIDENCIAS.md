@@ -23,6 +23,9 @@ Fontes oficiais do repositório:
 - [BDD](bdd/BILLING-BDD.md) — cenários Cucumber executáveis do Billing.
 - [Reprocessamento de DLQ](DLQ-REPROCESSAMENTO.md) — runbook operacional de
   inspeção e reprocessamento seguro.
+- [Provisionamento externo](PROVISIONAMENTO.md) — pré-requisitos fora do
+  repositório (Mercado Pago, SonarCloud, CI/Kubernetes, BDD cross-service e
+  observabilidade) e evidência esperada de cada um.
 
 ## Funcionalidades implementadas
 
@@ -86,7 +89,8 @@ curl http://localhost:8080/actuator/health
 | BDD do Billing | Cenários Cucumber locais aprovados (documentados em `docs/bdd/BILLING-BDD.md`) | Verificado localmente |
 | BDD de falha/compensação | `billing-saga-failure.feature`: `QUOTE_FAILED`/`INVALID_QUOTE_DATA` e cancelamento com `QUOTE_CANCELLED` (mocks locais) | Verificado localmente |
 | Reprocessamento de DLQ | [docs/DLQ-REPROCESSAMENTO.md](DLQ-REPROCESSAMENTO.md): runbook de DLQ RabbitMQ e Outbox `FAILED` | Documentado |
-| Quality gate Sonar | Workflow preparado e `sonar.ci.autoconfig.disabled=true` aplicado; SonarCloud reconhece o projeto, mas reporta conflito Automatic Analysis vs CI analysis; análise/quality gate não aprovados | Bloqueado externo |
+| Provisionamento externo | [docs/PROVISIONAMENTO.md](PROVISIONAMENTO.md): checklist de credenciais/ambientes e evidência esperada por item | Documentado |
+| Quality gate Sonar | Workflow alinhado ao padrão `os-service-ci-cd` (JDK 21, `SONAR_QG_WAIT` só em PR/`main`, skip sem token); SonarCloud reconhece o projeto, mas reporta conflito Automatic Analysis vs CI analysis; análise/quality gate não aprovados | Bloqueado externo |
 | Scans de dependências, secrets e imagem | Trivy (`aquasec/trivy:0.58.2`) não bloqueante adicionado ao job `image` do CI; relatórios como artefato `security-scans`; primeira execução remota pendente do próximo push | Pendente execução remota |
 | Publicação GHCR e deploy Kubernetes | Jobs criados, opt-in; nunca executados; secrets/ambiente staging não provisionados | Pendente |
 | Sandbox real Mercado Pago | Implementação e testes com provedor controlado aprovados; teste com credenciais reais de sandbox pendente (depende da aplicação Mercado Pago da equipe) | Pendente |
@@ -122,8 +126,9 @@ curl http://localhost:8080/actuator/health
   workflow Billing CI aprovado.
 - **Pendências:** sandbox real do Mercado Pago, BDD cross-service, quality
   gate Sonar, primeira execução remota dos scans Trivy, publicação
-  GHCR/deploy Kubernetes, dashboard/alertas/tracing e validação dos
-  manifests em cluster.
+  GHCR/deploy Kubernetes, dashboard/alertas/tracing, validação dos
+  manifests em cluster e os pré-requisitos externos consolidados em
+  [docs/PROVISIONAMENTO.md](PROVISIONAMENTO.md).
 
 ## Roteiro mínimo de demonstração do Billing
 

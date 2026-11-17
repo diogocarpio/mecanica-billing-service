@@ -29,8 +29,10 @@ Dispara em push para qualquer branch, em pull requests e manualmente
   política de severidade acordada pelo grupo).
 - **Sonar quality gate** (`sonar`): opcional, só executa quando a variável de
   repositório `SONAR_ENABLED` é `true` e o evento não é um pull request de
-  fork. Compila o código, baixa o artefato `test-evidence` e roda
-  `./mvnw sonar:sonar` aguardando o quality gate.
+  fork. Usa JDK 21, baixa o artefato `test-evidence` e roda
+  `./mvnw sonar:sonar`. Se `SONAR_TOKEN` estiver vazio, o job é ignorado com
+  warning. O quality gate só é aguardado em pull request ou push em `main`
+  (`SONAR_QG_WAIT`), espelhando o padrão do `os-service-ci-cd`.
 
 Os checks obrigatórios na proteção de branch devem ser os contextos
 `Build and tests`, `Kubernetes manifests` e `Container build`.
@@ -138,10 +140,13 @@ kubectl -n mecanica rollout undo deployment/billing-service
   atualizada com os checks `Build and tests`, `Kubernetes manifests` e
   `Container build`, aplica-se a administradores e bloqueia force-push e
   exclusão da branch.
-- Pendente: análise Sonar e quality gate. O SonarCloud reconhece o projeto,
-  mas reporta conflito entre Automatic Analysis e CI analysis mesmo com
-  `-Dsonar.ci.autoconfig.disabled=true`; tratar como bloqueio externo até o
-  painel/projeto ser ajustado. Configuração das variáveis e secrets acima,
+- Pendente: análise Sonar e quality gate. O workflow foi alinhado ao padrão do
+  `os-service-ci-cd` (JDK 21 no scanner, `SONAR_QG_WAIT` só em PR/`main`,
+  tolerância a `SONAR_TOKEN` ausente e sem `sonar.ci.autoconfig.disabled`),
+  mas o SonarCloud ainda reporta conflito entre Automatic Analysis e CI
+  analysis — bloqueio externo até o painel/projeto ser ajustado (desativar
+  Automatic Analysis no projeto SonarCloud). Configuração das variáveis e
+  secrets acima,
   publicação no GHCR, provisionamento do ambiente `staging` e deploy real
   validado.
 - Scans Trivy de filesystem e imagem adicionados ao job `image` do CI
