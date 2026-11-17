@@ -70,12 +70,28 @@ class MercadoPagoWebhookSignatureValidatorTest {
         assertThatThrownBy(() -> validator.validate(null, "req", "sig"))
                 .isInstanceOf(WebhookSignatureException.class)
                 .hasMessageContaining("incomplete");
+        assertThatThrownBy(() -> validator.validate(" ", "req", "sig"))
+                .isInstanceOf(WebhookSignatureException.class)
+                .hasMessageContaining("incomplete");
+        assertThatThrownBy(() -> validator.validate("123", null, "sig"))
+                .isInstanceOf(WebhookSignatureException.class)
+                .hasMessageContaining("incomplete");
         assertThatThrownBy(() -> validator.validate("123", " ", "sig"))
+                .isInstanceOf(WebhookSignatureException.class)
+                .hasMessageContaining("incomplete");
+        assertThatThrownBy(() -> validator.validate("123", "req", null))
                 .isInstanceOf(WebhookSignatureException.class)
                 .hasMessageContaining("incomplete");
         assertThatThrownBy(() -> validator.validate("123", "req", " "))
                 .isInstanceOf(WebhookSignatureException.class)
                 .hasMessageContaining("incomplete");
+    }
+
+    @Test
+    void shouldRejectNullSecret() {
+        assertThatThrownBy(() -> validator(null).validate("123", "req", "sig"))
+                .isInstanceOf(WebhookSignatureException.class)
+                .hasMessageContaining("not configured");
     }
 
     @Test

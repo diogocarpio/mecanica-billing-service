@@ -235,6 +235,33 @@ class MercadoPagoHttpGatewayTest {
     }
 
     @Test
+    void shouldReturnEmptyWhenSearchResponseIsJsonNull() {
+        server.expect(requestTo(containsString("/v1/payments/search")))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("null", APPLICATION_JSON));
+
+        assertThat(gateway.findPaymentByExternalReference("PAY-1")).isEmpty();
+    }
+
+    @Test
+    void shouldReturnEmptyWhenSearchResponseHasEmptyObject() {
+        server.expect(requestTo(containsString("/v1/payments/search")))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("{}", APPLICATION_JSON));
+
+        assertThat(gateway.findPaymentByExternalReference("PAY-1")).isEmpty();
+    }
+
+    @Test
+    void shouldReturnEmptyWhenSearchResponseIsEmptyString() {
+        server.expect(requestTo(containsString("/v1/payments/search")))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("", APPLICATION_JSON));
+
+        assertThat(gateway.findPaymentByExternalReference("PAY-1")).isEmpty();
+    }
+
+    @Test
     void shouldWrapRestClientFailureOnSearch() {
         server.expect(requestTo(containsString("/v1/payments/search")))
                 .andExpect(method(GET))
@@ -408,6 +435,32 @@ class MercadoPagoHttpGatewayTest {
         assertThatThrownBy(() -> nullTokenGateway.getPayment("123"))
                 .isInstanceOf(MercadoPagoException.class)
                 .hasMessageContaining("not configured");
+    }
+
+    @Test
+    void shouldOmitNullNotificationAndBackUrls() {
+        var nullUrlGateway = new MercadoPagoHttpGateway(
+                builder,
+                "https://api.mercadopago.test",
+                "TEST-TOKEN",
+                null,
+                null,
+                "https://client.test/failure",
+                "https://client.test/pending",
+                true
+        );
+        server.expect(requestTo("https://api.mercadopago.test/checkout/preferences"))
+                .andExpect(method(POST))
+                .andExpect(content().string(not(containsString("notification_url"))))
+                .andExpect(content().string(not(containsString("\"success\""))))
+                .andExpect(content().string(containsString("failure")))
+                .andRespond(withSuccess(
+                        "{\"id\":\"PREF-1\",\"init_point\":\"https://x\"}",
+                        APPLICATION_JSON
+                ));
+
+        nullUrlGateway.createPreference(request());
+        server.verify();
     }
 
     @Test

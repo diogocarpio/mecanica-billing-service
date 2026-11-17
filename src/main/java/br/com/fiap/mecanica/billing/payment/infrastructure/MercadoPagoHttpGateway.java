@@ -108,8 +108,7 @@ public class MercadoPagoHttpGateway implements MercadoPagoGateway {
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                     .retrieve()
                     .body(SearchResponse.class);
-            if (response == null || response.results() == null
-                    || response.results().isEmpty()) {
+            if (response == null || response.results().isEmpty()) {
                 return Optional.empty();
             }
             return Optional.of(response.results().get(0).toProviderPayment());
