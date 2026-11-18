@@ -26,6 +26,8 @@ Fontes oficiais do repositório:
 - [Provisionamento externo](PROVISIONAMENTO.md) — pré-requisitos fora do
   repositório (Mercado Pago, SonarCloud, CI/Kubernetes, BDD cross-service e
   observabilidade) e evidência esperada de cada um.
+- [Progresso da entrega](PROGRESSO-ENTREGA.md) — os 6 itens restantes em
+  ordem de execução, com checklist e evidência de cada um.
 
 ## Funcionalidades implementadas
 
@@ -93,7 +95,8 @@ curl http://localhost:8080/actuator/health
 | Quality gate Sonar | Workflow alinhado ao padrão `os-service-ci-cd` (JDK 21, `SONAR_QG_WAIT` só em PR/`main`, skip sem token); SonarCloud reconhece o projeto, mas reporta conflito Automatic Analysis vs CI analysis; análise/quality gate não aprovados | Bloqueado externo |
 | Scans de dependências, secrets e imagem | Trivy (`aquasec/trivy:0.58.2`) não bloqueante adicionado ao job `image` do CI; relatórios como artefato `security-scans`; primeira execução remota pendente do próximo push | Pendente execução remota |
 | Publicação GHCR e deploy Kubernetes | Jobs criados, opt-in; nunca executados; secrets/ambiente staging não provisionados | Pendente |
-| Sandbox real Mercado Pago | Implementação e testes com provedor controlado aprovados; teste com credenciais reais de sandbox pendente (depende da aplicação Mercado Pago da equipe) | Pendente |
+| Pagamento com provedor simulado | `tools/payment-simulator` + Compose; E2E local aprovado: orçamento aprovado → `POST /api/v1/payments` → checkout simulado → webhook assinado → consulta ao provedor → `APPROVED`; recusa → `REJECTED`; webhook reenviado não reabriu estado terminal | Verificado localmente |
+| Sandbox real Mercado Pago | Opcional; depende de aplicação de teste, credenciais e URL pública HTTPS | Pendente |
 | BDD cross-service | Apenas cenários locais do Billing existem (incluindo falha/compensação) | Pendente |
 | Observabilidade integrada | correlationId, MDC e métricas implementados; integração com ferramentas da Fase 3, dashboard e alertas pendentes | Parcial |
 | Validação de manifests em cluster | kubeconform validou sintaxe; deploy real não validado | Pendente |
@@ -133,7 +136,7 @@ curl http://localhost:8080/actuator/health
 ## Roteiro mínimo de demonstração do Billing
 
 > Depende do ambiente e dos serviços do grupo (OS Service, broker, front de
-> aprovação e Mercado Pago). Sem esse ambiente, a demonstração limita-se ao
+> aprovação e provedor de pagamento). Sem esse ambiente, a demonstração limita-se ao
 > trecho local do Billing.
 
 **Fluxo feliz:**
@@ -142,7 +145,7 @@ curl http://localhost:8080/actuator/health
    `os.quote.requested.v1` no RabbitMQ).
 2. Enviar para aprovação e aprovar via API.
 3. Criar pagamento via `POST /api/v1/payments` e obter o link de checkout do
-   Mercado Pago sandbox.
+   simulador local ou do Mercado Pago sandbox.
 4. Simular webhook assinado e mostrar a confirmação idempotente do pagamento
    no provedor e os eventos publicados pela Outbox.
 

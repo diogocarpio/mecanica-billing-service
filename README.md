@@ -42,7 +42,8 @@ O Billing já permite:
 - reconciliar pagamentos pendentes e publicar seus resultados pela Outbox;
 - consultar o contrato OpenAPI e métricas operacionais.
 
-O teste controlado com credenciais reais de sandbox ainda depende da aplicação
+A demonstração local usa o simulador de pagamentos do Compose; o teste controlado com
+credenciais reais de sandbox permanece opcional e depende da aplicação
 Mercado Pago da equipe.
 
 ## Stack
@@ -151,6 +152,7 @@ O container roda como usuário não root e expõe probes em
 - Health: <http://localhost:8080/actuator/health>
 - Prometheus: <http://localhost:8080/actuator/prometheus>
 - RabbitMQ Management: <http://localhost:15672>
+- Simulador de pagamentos local: <http://localhost:4010>
 - Cobertura JaCoCo: `target/site/jacoco/index.html`
 
 ## Configuração
@@ -219,6 +221,7 @@ execução do serviço.
 
 ## Planejamento
 
+- [Checklist final e roteiro — somente Aluno 2](docs/FECHAMENTO-ALUNO-2.md)
 - [Entregáveis por etapa](docs/ENTREGAVEIS.md)
 - [CI/CD e governança do pipeline](docs/CI-CD.md)
 - [Análise completa e checklist da Fase 4](docs/FASE4-CHECKLIST.md)
@@ -230,7 +233,7 @@ Pendências reais para as próximas etapas:
 - executar os pré-requisitos externos listados em
   [docs/PROVISIONAMENTO.md](docs/PROVISIONAMENTO.md);
 - executar o teste controlado no sandbox do Mercado Pago com as credenciais da
-  equipe;
+  equipe, se o grupo optar por evidência real do provedor;
 - executar o BDD cross-service de sucesso e o cenário ponta a ponta de
   falha/compensação com os demais serviços;
 - configurar e publicar o quality gate do Sonar, scans de dependências,
