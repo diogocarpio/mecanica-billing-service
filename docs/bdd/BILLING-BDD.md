@@ -17,13 +17,16 @@ O cenário de falha/compensação local está em
 - o cancelamento da OS (`os.cancelled.v1`) compensa o orçamento pendente,
   que termina como `CANCELLED` e publica `billing.quote.cancelled.v1`.
 
-Os limites do OS Service e do Mercado Pago são simulados no teste do
-repositório Billing. Para o BDD final do grupo, o mesmo cenário deve:
+Os limites do OS Service e do provedor de pagamento são simulados no teste do
+repositório Billing. O stub HTTP controlado aprovado para demonstração local é
+`tools/payment-simulator` (Compose, porta 4010), que implementa o contrato
+Mercado Pago usado pelo `MercadoPagoHttpGateway`. Para o BDD final do grupo, o
+mesmo cenário deve:
 
 1. iniciar por uma OS real no OS Service;
 2. receber os eventos de orçamento pelo RabbitMQ;
 3. aprovar o orçamento pela API do Billing;
-4. usar o sandbox real ou o stub HTTP controlado do Mercado Pago;
+4. usar o simulador local ou o sandbox real do Mercado Pago;
 5. confirmar que o OS Service consumiu `billing.payment.approved.v1`;
 6. verificar o estado final da OS sem acessar bancos de outros serviços.
 
@@ -35,7 +38,8 @@ versão ponta a ponta com broker real e os demais serviços continua pendente.
 ## Cenários cross-service a executar com o grupo
 
 Ambiente mínimo: OS Service, Billing Service, RabbitMQ com exchange/DLX,
-MongoDB do Billing e Mercado Pago sandbox ou stub HTTP acordado.
+MongoDB do Billing e o simulador local `tools/payment-simulator` ou Mercado
+Pago sandbox.
 
 ### Fluxo feliz
 
