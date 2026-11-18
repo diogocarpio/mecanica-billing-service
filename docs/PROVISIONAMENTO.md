@@ -4,7 +4,14 @@ Checklist do que falta fornecer/configurar para fechar os itens que não podem
 ser validados apenas dentro deste repositório. Nada aqui é evidência de execução:
 cada item só vira evidência depois de executado e registrado.
 
-## 1. Mercado Pago sandbox
+## 1. Mercado Pago sandbox / simulador local
+
+Para demonstração local sem credenciais externas, usar
+`tools/payment-simulator` via Compose (porta 4010) e apontar
+`MERCADO_PAGO_BASE_URL=http://localhost:4010`, `MERCADO_PAGO_ACCESS_TOKEN` e
+`MERCADO_PAGO_WEBHOOK_SECRET` para os valores de demonstração documentados em
+[integrations/MERCADO-PAGO.md](integrations/MERCADO-PAGO.md). O sandbox real
+abaixo permanece opcional.
 
 Necessário do grupo/equipe Mercado Pago:
 
@@ -104,6 +111,7 @@ Necessário:
 - ensaio do fluxo feliz e da falha/compensação;
 - participação no vídeo de até 15 minutos.
 
-Menor sequência para destravar: resolver SonarCloud → executar sandbox Mercado
-Pago → provisionar CI/Kubernetes staging → rodar BDD cross-service → integrar
-observabilidade e ensaiar a demonstração.
+Menor sequência para destravar: resolver SonarCloud → executar o fluxo com o
+simulador local (ou sandbox real, se o grupo tiver credenciais) → provisionar
+CI/Kubernetes staging → rodar BDD cross-service → integrar observabilidade e
+ensaiar a demonstração.

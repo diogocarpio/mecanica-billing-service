@@ -17,7 +17,11 @@ Um item só deve ser marcado como concluído depois de validado.
 - [ ] ETAPA 10 - CI/CD e proteção da branch do repositório Billing.
 - [x] ETAPA 11 - Swagger, arquitetura e evidências do Billing Service.
 
-Progresso: **6 de 11 etapas concluídas (55%)**.
+Contagem histórica deste plano: **6 de 11 etapas concluídas (55%)**.
+Para a avaliação atual, restrita às exigências do Aluno 2, consultar
+[FECHAMENTO-ALUNO-2.md](FECHAMENTO-ALUNO-2.md). As etapas amplas abaixo
+incluem decisões opcionais e pendências do grupo; não representam o percentual
+atual de entrega do Billing.
 
 Legenda:
 
